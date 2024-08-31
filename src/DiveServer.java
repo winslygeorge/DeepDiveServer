@@ -1,21 +1,15 @@
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.security.PublicKey;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-
 
 
 /**
@@ -103,83 +97,168 @@ public class DiveServer {
 				Message cmes = (Message) inob.readObject(); 
 			
 				try{
-					
-					cmes.getCertificate().verify(pk);
-					
-					System.out.println("connected client  app is verified");
-					
-					outob.writeObject(new Message("DeepDiveServer", access.getAccessCertification("client"), access.getAsymmetrickey()));
-					outob.flush();
-				
-					if(inob.readInt()!=1) {
-						
+					System.out.println("cmes : " );
+
+					System.out.println(cmes.getMessage() + " : type" + cmes.getType() + " : groupClient" + cmes.getGroupClient() + " : privateCode" + cmes.getPrivateCode() + " : isPrivate" +cmes.getisPrivate());
+
+				if(cmes.getType() != null && cmes.getType().equalsIgnoreCase("webclientconnecting")){
+
+					System.out.println("web client received..");
+
+					if (inob.readInt() != 1) {
+
 						client.close();
-					}else {
-						
+					} else {
+
 						String u = "";
-						
+
 						u = inob.readUTF();
-						if(u == null|| u.isEmpty()) {
-					
+
+						System.out.println("Username  received  : "+u);
+
+
+						if (u.isEmpty()) {
+
 							System.out.println("Username not received");
-					
+
 							client.close();
-				
-						}else {		
+
+						} else {
 							String userToAdd = u;
-							
-							if(clients.containsKey(userToAdd)) {
-								
+
+							if (clients.containsKey(userToAdd)) {
+
 								System.out.println("client already registered");
-									
-									System.out.println("client is reconnecting ..");
-									
-									this.clientSocket.get(userToAdd).close();
-									
-									
-									clients.replace(userToAdd, outob);
-									
-									this.clientSocket.replace(userToAdd, client);
-									
-									URLDef url = new URLDef();
-									
-									if(url.sendOnlinePresenceToken(userToAdd, true)){
-										
-										System.out.println(userToAdd+ "  :  is online");
-									}else {
-										
-										System.err.println("error sending online presence");
-									}
-									
-									
-								
-							}else {
-								
-								
+
+								System.out.println("client is reconnecting ..");
+
+								this.clientSocket.get(userToAdd).close();
+
+
+								clients.replace(userToAdd, outob);
+
+								this.clientSocket.replace(userToAdd, client);
+
+								URLDef url = new URLDef();
+
+//									if(url.sendOnlinePresenceToken(userToAdd, true)){
+//
+//										System.out.println(userToAdd+ "  :  is online");
+//									}else {
+//
+//										System.err.println("error sending online presence");
+//									}
+
+
+							} else {
+
+								System.out.println("setting client : " + userToAdd);
 
 								this.clientSocket.put(userToAdd, client);
-						
+
 								clients.put(userToAdd, outob);
-								
+
 								URLDef url = new URLDef();
-								
-								if(url.sendOnlinePresenceToken(userToAdd, true)){
-									
-									System.out.println(userToAdd+ "  :  is online");
-								}else {
-									
-									System.err.println("error sending online presence");
-								}
-								
-								
-							
-								
-							
+
+//								if(url.sendOnlinePresenceToken(userToAdd, true)){
+//
+//									System.out.println(userToAdd+ "  :  is online");
+//								}else {
+//
+//									System.err.println("error sending online presence");
+//								}
+
+
 							}
-							exe.execute(new ClientHandler(userToAdd,client,this.clientSocket, clients, inob, outob));
+							exe.execute(new ClientHandler(userToAdd, client, this.clientSocket, clients, inob, outob));
 						}
-						
+
+					}
+
+				}else if(cmes.getType() != null && cmes.getType().equals("<*>close")){
+
+
+
+						closeSpecifiedClient(cmes.getFrom());
+
+					}else {
+
+
+							cmes.getCertificate().verify(pk);
+
+							System.out.println("connected client  app is verified");
+
+							outob.writeObject(new Message("DeepDiveServer", access.getAccessCertification("client"), access.getAsymmetrickey()));
+							outob.flush();
+
+							if (inob.readInt() != 1) {
+
+								client.close();
+							} else {
+
+								String u = "";
+
+								u = inob.readUTF();
+								if (u == null || u.isEmpty()) {
+
+									System.out.println("Username not received");
+
+									client.close();
+
+								} else {
+									String userToAdd = u;
+
+									if (clients.containsKey(userToAdd)) {
+
+										System.out.println("client already registered");
+
+										System.out.println("client is reconnecting ..");
+
+										this.clientSocket.get(userToAdd).close();
+
+
+										clients.replace(userToAdd, outob);
+
+										this.clientSocket.replace(userToAdd, client);
+
+										URLDef url = new URLDef();
+
+//									if(url.sendOnlinePresenceToken(userToAdd, true)){
+//
+//										System.out.println(userToAdd+ "  :  is online");
+//									}else {
+//
+//										System.err.println("error sending online presence");
+//									}
+
+
+									} else {
+
+
+										this.clientSocket.put(userToAdd, client);
+
+										clients.put(userToAdd, outob);
+
+										URLDef url = new URLDef();
+
+//								if(url.sendOnlinePresenceToken(userToAdd, true)){
+//
+//									System.out.println(userToAdd+ "  :  is online");
+//								}else {
+//
+//									System.err.println("error sending online presence");
+//								}
+
+
+									}
+									exe.execute(new ClientHandler(userToAdd, client, this.clientSocket, clients, inob, outob));
+								}
+
+							}
 						}
+
+
+
 				}catch(Exception e) {
 					
 					e.printStackTrace();
@@ -224,6 +303,20 @@ public class DiveServer {
 		
 		return this.clients;
 	}
+
+
+	public void closeSpecifiedClient(String username){
+
+        try {
+            this.clients.get(username).close();
+
+		} catch (IOException e) {
+
+			//            throw new RuntimeException(e);
+
+        }
+
+    }
 
 	
 

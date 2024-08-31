@@ -140,14 +140,29 @@ public class ClientHandler implements Runnable {
 									 System.out.println("mess is null");
 									continue;
 								 }
+
+								 if(mess.getGroupClient() != null && mess.getGroupClient().equalsIgnoreCase("<*>close")){
+
+									 try{
+
+										 this.client.get(mess.getFrom()).close();
+
+									 }catch (Exception e){
+
+										 System.out.println(e.getMessage());
+									 }
+
+
+									 continue;
+								 }
 							 
 								
 				 			
-				 				System.out.println(mess.getPrivateCode()+" : "+ mess.getCertificate()+ " : "+mess.getType()+ " : "+mess.getFrom()+" : "+ mess.getTo());
+				 				System.out.println(mess.getPrivateCode()+" : "+ mess.getCertificate()+ " : "+mess.getType()+ " : "+mess.getFrom()+" : "+ mess.getTo() + " : groupClient : " + mess.getGroupClient());
 				
 								System.out.println(mess.getisPrivate()+ "dd");
 								
-								if(mess.getisPrivate() == true || mess.getGroupClient() == null) {
+								if(mess.getisPrivate() || mess.getGroupClient() == null) {
 									
 
 									if(client.containsKey(mess.getFrom())&& client.containsKey(mess.getTo())) {
@@ -156,8 +171,8 @@ public class ClientHandler implements Runnable {
 										
 										if(sc.isClosed()) {
 											
-											client.get(mess.getFrom()).writeObject(new Message("privatechat", "text", "DeepDiver", mess.getFrom(), "user : "+mess.getTo()+" -is not online###", false));
-											client.get(mess.getFrom()).flush();
+//											client.get(mess.getFrom()).writeObject(new Message("privatechat", "text", "DeepDiver", mess.getFrom(), "user : "+mess.getTo()+" -is not online###", false));
+//											client.get(mess.getFrom()).flush();
 											System.out.println(mess.getTo()+ " : sent offline msg..%%");
 										}else {
 				
@@ -328,7 +343,7 @@ public class ClientHandler implements Runnable {
 			
 		}	} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println(e.getMessage());
 				}
 				}
 		
@@ -340,7 +355,7 @@ public class ClientHandler implements Runnable {
 				out.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 			}
 		
 
@@ -417,13 +432,14 @@ public class ClientHandler implements Runnable {
 			ac.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			
 			try {
-				ac.close();
+                assert ac != null;
+                ac.close();
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				System.out.println(e1.getMessage());
 			}
 		}
 		return is;
@@ -470,7 +486,7 @@ public String readOfflineMessages(String userfile) {
 				System.out.println(jst);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 			}
 			
 		}else {

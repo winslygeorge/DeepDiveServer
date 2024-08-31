@@ -6,7 +6,7 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 
 /**
- * 
+ *
  */
 
 /**
@@ -14,10 +14,10 @@ import javax.crypto.SecretKey;
  *
  */
 public class Message implements Serializable{
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -8861133724187441662L;
 
@@ -26,21 +26,21 @@ public class Message implements Serializable{
 	 */
 
 	protected String message;
-	
+
 	protected String from;
-	
+
 	protected String to;
-	
+
 	protected Date currenttime;
-	
+
 	protected Date time;
-	
+
 	protected String type;
-	
+
 	private String signature;
-	
+
 	private boolean isPrivate;
-	
+
 	protected boolean privateCode;
 	protected Certificate certificate;
 
@@ -49,16 +49,19 @@ public class Message implements Serializable{
 	private String keyString;
 
 	private String groupClient;
-	
+
+	private String applicationType;
+
 	public Message(String type, String msg) {
-		
+
 		this.type = type;
 		this.message = msg;
 	}
-	
-	public Message(String groupclient, String type,String fro, String to, String msg, boolean b) {
-		
+
+	public Message(String applicationType,String groupclient, String type,String fro, String to, String msg, boolean b) {
+
 		this.from = fro;
+		this.applicationType = applicationType;
 		this.to = to;
 		this.message = msg;
 		this.currenttime = new Date();
@@ -66,43 +69,43 @@ public class Message implements Serializable{
 		this.type = type;
 		this.setGroupClient(groupclient);
 	}
-	
-	
+
+
 
 	public Message(String from, Certificate cert){
-		
+
 		this.from = from;
-		
+
 		this.certificate = cert;
-		
-		
+
+
 	}
 	public Message(String type2, String fro, String to2, String msg,  long l) {
 		// TODO Auto-generated constructor stub
-		
+
 		this.from = fro;
 		this.to = to2;
 		this.message = msg;
 		this.time = new Date(l);
-		
+
 		this.type = type2;
 	}
 
 	public Message(String string, X509Certificate accessCertification, SecretKey asymmetrickey) {
 		// TODO Auto-generated constructor stub
-		
+
 		this.from = string;
-		
+
 		this.certificate = accessCertification;
-		
+
 		this.sk = asymmetrickey;
-		
-		
+
+
 	}
-	
+
 	public Message(String userName, String from2, X509Certificate accessCertification) {
 		// TODO Auto-generated constructor stub
-		
+
 		this.from = userName;
 		this.to = from2;
 		this.certificate = accessCertification;
@@ -110,7 +113,7 @@ public class Message implements Serializable{
 
 	public Message(String from2, String to2, boolean b) {
 		// TODO Auto-generated constructor stub
-		
+
 		this.from = from2;
 		this.to = to2;
 		this.privateCode = b;
@@ -118,7 +121,7 @@ public class Message implements Serializable{
 
 	public Message(String type2, String from2, String to2,String sign, String ecns, boolean b, String st) {
 		// TODO Auto-generated constructor stub
-		
+
 		this.type = type2;
 		this.from = from2;
 		this.to = to2;
@@ -128,7 +131,7 @@ public class Message implements Serializable{
 		this.keyString = st;
 	}
 
-	
+
 	public Message(String string,String userName, String from2, X509Certificate accessCertification) {
 		// TODO Auto-generated constructor stub
 		this.setGroupClient(string);
@@ -143,27 +146,27 @@ public class Message implements Serializable{
 	public String getFrom() {
 		return this.from;
 	}
-	
+
 	public String getTo() {
 		return this.to;
 	}
-	
+
 	public Date getTime() {
 		return this.time;
 	}
-	
+
 	public String getMessage() {
 		return this.message;
 	}
 	public Certificate getCertificate() {
-		
+
 		return this.certificate;
 	}
-	
+
 	public String getType() {
 		return type;
 	}
-	
+
 	public Date getCurrentTime() {
 		return this.currenttime;
 	}
@@ -178,7 +181,7 @@ public class Message implements Serializable{
 	public boolean getPrivateCode() {
 		return this.privateCode;
 	}
-	
+
 	public String getKeyString() {
 		return this.keyString;
 	}
@@ -195,8 +198,21 @@ public class Message implements Serializable{
 		return groupClient;
 	}
 
+	public String getApplicationType() {
+		return this.applicationType;
+	}
+
+
 	public void setGroupClient(String groupClient) {
 		this.groupClient = groupClient;
 	}
+
+	public void setMessage(String smsg) {
+		// TODO Auto-generated method stub
+
+		this.message = smsg;
+
+	}
+
 }
 
